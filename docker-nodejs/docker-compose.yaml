@@ -1,0 +1,49 @@
+version: '3'
+
+services:
+  nodejs:
+    build:
+      context: nodejs
+    container_name: nodejs
+    networks:
+    - docker-challenge
+    volumes:
+    - ./nodejs:/usr/src/app
+    tty: true
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+
+  db:
+    image: mysql:5.7
+    command: --innodb-use-native-aio=0
+    container_name: db
+    restart: always
+    tty: true
+    volumes:
+      - ./mysql:/var/lib/mysql
+      - "./init.sql:/docker-entrypoint-initdb.d/1.sql"
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=nodedb
+    networks:
+      - docker-challenge
+    ports:
+      - "3306:3036"
+
+  nginx: 
+    build:
+      context: nginx
+    container_name: nginx
+    networks:
+    - docker-challenge
+    tty: true
+    depends_on:
+    - nodejs
+    ports:
+      - "8080:80"
+
+networks:
+  docker-challenge:
+    driver: bridge
