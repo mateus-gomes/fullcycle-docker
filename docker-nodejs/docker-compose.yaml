@@ -5,6 +5,8 @@ services:
     build:
       context: nodejs
     container_name: nodejs
+    entrypoint: dockerize --wait tcp://db:3306 --timeout 20s docker-entrypoint.sh
+    command: sh -c "npm install && node index.js"
     networks:
     - docker-challenge
     volumes:
@@ -39,10 +41,10 @@ services:
     networks:
     - docker-challenge
     tty: true
-    depends_on:
-    - nodejs
     ports:
       - "8080:80"
+    depends_on:
+      - nodejs
 
 networks:
   docker-challenge:
